@@ -276,13 +276,17 @@ def replace_title_text(para, new_title: str):
     if tab_run_idx is None:
         return
 
-    # Everything after the tab run is the title - distribute new title words
+    # The tab run may also contain title text (e.g. "\tSenior")
+    # Trim it to just the location + tab portion
+    tab_run = para.runs[tab_run_idx]
+    tab_pos = tab_run.text.index("\t")
+    tab_run.text = tab_run.text[:tab_pos + 1]
+
+    # Everything after the tab run is the title
     title_run_indices = list(range(tab_run_idx + 1, len(para.runs)))
     if not title_run_indices:
-        # Tab and title are in the same run
-        tab_run = para.runs[tab_run_idx]
-        tab_pos = tab_run.text.index("\t")
-        tab_run.text = tab_run.text[:tab_pos + 1] + new_title
+        # No runs after tab - append title to the tab run itself
+        tab_run.text = tab_run.text + new_title
         return
 
     new_words = new_title.split(" ")
@@ -296,7 +300,7 @@ def replace_title_text(para, new_title: str):
         elif para.runs[ri].text == " ":
             space_run_indices.append(ri)
 
-    # Clear title runs
+    # Clear all title runs
     for ri in title_run_indices:
         para.runs[ri].text = ""
 
@@ -305,7 +309,7 @@ def replace_title_text(para, new_title: str):
             para.runs[title_run_indices[0]].text = new_title
         return
 
-    # Distribute words
+    # Distribute words across word runs, overflow into last
     if len(new_words) <= len(word_run_indices):
         for wi, word in enumerate(new_words):
             para.runs[word_run_indices[wi]].text = word
