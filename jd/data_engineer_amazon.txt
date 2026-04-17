@@ -1,0 +1,24 @@
+Data Engineer II - Amazon Web Services (AWS)
+Location: Seattle, WA
+
+About the Role:
+Join Amazon's Data Engineering team to build and maintain large-scale data pipelines
+powering critical business analytics and ML models. You'll work with petabyte-scale
+data systems serving millions of customers.
+
+Requirements:
+- 3+ years experience as a Data Engineer
+- Expert-level SQL and Python
+- Deep experience with Apache Spark, Kafka, and Airflow
+- AWS services: Redshift, S3, Glue, EMR, Lambda, DynamoDB
+- ETL/ELT pipeline design and optimization
+- Data modeling and warehousing best practices
+- Experience with real-time streaming data architectures
+- CI/CD and infrastructure as code (Terraform, CloudFormation)
+- Strong communication and stakeholder management skills
+
+Preferred:
+- Experience with dbt, Great Expectations, or similar data quality tools
+- Machine learning pipeline experience (SageMaker)
+- Grafana/Tableau for data visualization
+- PostgreSQL and NoSQL databases at scale
