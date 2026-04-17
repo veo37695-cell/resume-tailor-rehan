@@ -1,0 +1,23 @@
+Senior AI/ML Engineer - San Francisco, CA
+
+About the Role:
+We are looking for a Senior AI/ML Engineer to join our team and help build next-generation
+AI-powered products. You will work on large language models, RAG systems, and production ML
+infrastructure.
+
+Requirements:
+- 5+ years of experience in ML/AI engineering
+- Strong proficiency in Python, PyTorch, and TensorFlow
+- Experience with LLM fine-tuning (LoRA, QLoRA, PEFT)
+- Hands-on experience building RAG pipelines with vector databases
+- Production experience deploying models on AWS (SageMaker, ECS, Lambda)
+- Experience with LangChain, agentic AI frameworks
+- Strong background in data engineering (Kafka, Spark, Airflow)
+- Experience with Docker, Kubernetes, and CI/CD pipelines
+- Excellent communication skills and ability to work cross-functionally
+
+Nice to Have:
+- Experience with RLHF and alignment techniques
+- Familiarity with VLLM, TGI for model serving
+- C++ optimization experience for inference
+- Real-time streaming data architectures

@@ -1,0 +1,74 @@
+name: Tailor Resume to JD
+
+on:
+  push:
+    paths:
+      - 'jd/**'
+
+  workflow_dispatch:
+    inputs:
+      jd_filename:
+        description: 'JD filename inside the jd/ folder (e.g. google_swe.txt)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  tailor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update && sudo apt-get install -y libreoffice
+
+      - name: Detect JD file
+        id: detect_jd
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "jd_file=jd/${{ github.event.inputs.jd_filename }}" >> $GITHUB_OUTPUT
+          else
+            # Find the most recently added/modified JD file
+            JD_FILE=$(git diff --name-only HEAD~1 HEAD -- 'jd/' | head -1)
+            if [ -z "$JD_FILE" ]; then
+              JD_FILE=$(ls -t jd/* 2>/dev/null | head -1)
+            fi
+            echo "jd_file=$JD_FILE" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Tailor resume
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
+        run: |
+          echo "Processing JD: ${{ steps.detect_jd.outputs.jd_file }}"
+          python scripts/tailor_resume.py \
+            --jd "${{ steps.detect_jd.outputs.jd_file }}" \
+            --template template/resume_template.docx \
+            --output-dir output
+
+      - name: Commit and push updated resume
+        run: |
+          git config user.name "Resume Tailor Bot"
+          git config user.email "bot@resume-tailor.github.io"
+          git add output/
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Tailored resume for: ${{ steps.detect_jd.outputs.jd_file }}"
+          git push
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tailored-resume
+          path: output/
+          retention-days: 30
