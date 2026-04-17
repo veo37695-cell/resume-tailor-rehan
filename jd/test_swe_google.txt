@@ -1,0 +1,26 @@
+Software Engineer - Google Cloud Platform
+
+Location: Mountain View, CA
+Experience: 5+ years
+
+About the role:
+We are looking for a Software Engineer to join Google Cloud Platform. You will design, develop, and maintain scalable distributed systems that power cloud infrastructure for millions of users worldwide.
+
+Responsibilities:
+- Design and implement large-scale distributed systems and microservices
+- Write clean, maintainable code in Python, Go, or Java
+- Build and optimize data pipelines and real-time streaming systems
+- Deploy and manage services on Kubernetes and Google Cloud
+- Collaborate with cross-functional teams to define and ship new features
+- Conduct code reviews and mentor junior engineers
+- Monitor system performance and troubleshoot production issues
+
+Requirements:
+- BS/MS in Computer Science or equivalent
+- 5+ years of experience in software engineering
+- Strong proficiency in Python, Go, or Java
+- Experience with distributed systems, microservices, and cloud computing
+- Hands-on experience with Kubernetes, Docker, and CI/CD pipelines
+- Familiarity with SQL/NoSQL databases (PostgreSQL, BigQuery, Redis)
+- Experience with data engineering tools (Apache Beam, Dataflow, Pub/Sub)
+- Strong problem-solving skills and attention to detail
