@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -49,7 +51,7 @@ jobs:
 
       - name: Tailor resume
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
+          GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
         run: |
           echo "Processing JD: ${{ steps.detect_jd.outputs.jd_file }}"
           python scripts/tailor_resume.py \

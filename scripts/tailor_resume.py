@@ -351,9 +351,9 @@ def main():
                         help="GitHub token (or set GITHUB_TOKEN env var)")
     args = parser.parse_args()
 
-    token = args.token or os.environ.get("GITHUB_TOKEN")
+    token = args.token or os.environ.get("GH_MODELS_TOKEN") or os.environ.get("GITHUB_TOKEN")
     if not token:
-        sys.exit("ERROR: Provide --token or set GITHUB_TOKEN environment variable")
+        sys.exit("ERROR: Provide --token or set GH_MODELS_TOKEN environment variable")
 
     jd_path = Path(args.jd)
     if not jd_path.exists():
