@@ -10,24 +10,18 @@ import copy
 import argparse
 import re
 from pathlib import Path
+from copy import deepcopy
 
 import requests
 from docx import Document
 from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml.ns import qn
+from lxml import etree
 
 
 GITHUB_MODELS_URL = "https://models.inference.ai.azure.com/chat/completions"
 MODEL_NAME = "gpt-4o"
-
-SECTIONS_TO_TAILOR = [
-    "experience",
-    "skills & certifications",
-]
-
-SECTIONS_TO_SKIP = [
-    "education",
-]
 
 
 def read_jd(jd_path: str) -> str:
@@ -47,62 +41,10 @@ def read_jd(jd_path: str) -> str:
             return f.read()
 
 
-def extract_resume_text(doc: Document) -> str:
-    lines = []
-    for para in doc.paragraphs:
-        if para.text.strip():
-            lines.append(para.text.strip())
-    return "\n".join(lines)
-
-
-def parse_sections(doc: Document) -> list[dict]:
-    """
-    Parse the resume into logical sections based on Heading 1 markers
-    and the known layout pattern.
-    """
-    sections = []
-    current_section = None
-    current_job = None
-
-    for i, para in enumerate(doc.paragraphs):
-        text = para.text.strip()
-        style = para.style.name if para.style else ""
-
-        if i == 0 and style == "Heading 1":
-            current_section = {"type": "name", "para_indices": [i], "text": text}
-            sections.append(current_section)
-            current_section = None
-            continue
-
-        if i == 1:
-            sections.append({"type": "contact", "para_indices": [i], "text": text})
-            continue
-
-        if style == "Heading 1" and text.lower() in ("experience",):
-            current_section = {"type": "experience", "heading_idx": i, "jobs": [], "para_indices": [i]}
-            sections.append(current_section)
-            continue
-
-        if style == "Heading 1" and "education" in text.lower():
-            current_section = {"type": "education", "para_indices": [i], "jobs": []}
-            sections.append(current_section)
-            continue
-
-        if style == "Heading 1" and "certification" in text.lower():
-            current_section = {"type": "skills", "para_indices": [i]}
-            sections.append(current_section)
-            continue
-
-        if current_section:
-            current_section["para_indices"].append(i)
-
-    return sections
-
-
 def build_experience_blocks(doc: Document) -> list[dict]:
     """
     Parse the resume into experience blocks: each block has a company header
-    and a list of bullet-point paragraph indices.
+    and a list of bullet-point paragraph indices (only non-empty bullets).
     """
     blocks = []
     current_block = None
@@ -126,7 +68,13 @@ def build_experience_blocks(doc: Document) -> list[dict]:
         if not in_experience:
             continue
 
-        if style == "Normal" and "\t" in text and not text.startswith("-"):
+        is_date_company = (
+            style in ("Normal", "Body Text")
+            and "\t" in text
+            and not text.startswith("-")
+            and text  # non-empty
+        )
+        if is_date_company:
             if current_block:
                 blocks.append(current_block)
             current_block = {
@@ -142,7 +90,7 @@ def build_experience_blocks(doc: Document) -> list[dict]:
             current_block["title_text"] = text
             continue
 
-        if style == "List Paragraph" and current_block:
+        if style == "List Paragraph" and current_block and text:
             current_block["bullet_indices"].append(i)
             continue
 
@@ -152,25 +100,54 @@ def build_experience_blocks(doc: Document) -> list[dict]:
     return blocks
 
 
-def build_skills_block(doc: Document) -> dict:
-    """Extract the skills & certifications section paragraph indices."""
-    skill_indices = []
+def build_skills_entries(doc: Document) -> list[dict]:
+    """
+    Extract skill category entries from the skills section.
+    Each entry maps a paragraph index to its category label and skills text,
+    tracking which runs are bold (category) vs normal (skills).
+    """
     in_skills = False
+    entries = []
+
     for i, para in enumerate(doc.paragraphs):
         text = para.text.strip()
         style = para.style.name if para.style else ""
 
         if style == "Heading 1" and "certification" in text.lower():
             in_skills = True
-            skill_indices.append(i)
             continue
 
-        if in_skills:
-            if style == "Heading 1" and "certification" not in text.lower() and "skill" not in text.lower():
-                break
-            skill_indices.append(i)
+        if not in_skills:
+            continue
 
-    return {"para_indices": skill_indices}
+        if not text:
+            continue
+
+        bold_part = ""
+        normal_part = ""
+        found_colon = False
+
+        for run in para.runs:
+            if not found_colon:
+                if ":" in run.text:
+                    colon_idx = run.text.index(":")
+                    bold_part += run.text[:colon_idx + 1]
+                    normal_part += run.text[colon_idx + 1:]
+                    found_colon = True
+                else:
+                    bold_part += run.text
+            else:
+                normal_part += run.text
+
+        if bold_part.strip() and normal_part.strip():
+            entries.append({
+                "para_idx": i,
+                "category": bold_part.strip(),
+                "skills": normal_part.strip(),
+                "full_text": text,
+            })
+
+    return entries
 
 
 def call_github_model(token: str, system_prompt: str, user_prompt: str) -> str:
@@ -196,29 +173,28 @@ def call_github_model(token: str, system_prompt: str, user_prompt: str) -> str:
 
 def tailor_bullets(token: str, jd_text: str, company: str, title: str,
                    original_bullets: list[str]) -> list[str]:
-    """
-    Use the LLM to rewrite experience bullets tailored to the JD,
-    keeping the same count and similar length.
-    """
     system_prompt = (
         "You are an expert resume writer. You tailor resume bullet points to match "
         "a target job description while keeping them truthful and grounded in the "
         "original experience. Preserve technical depth and quantified metrics. "
         "Do NOT invent new experiences or metrics that aren't in the original. "
-        "Do NOT add any prefix numbering. Return ONLY the bullet texts, one per line, "
-        "with no extra commentary. Keep the same number of bullets."
+        "Do NOT add any prefix numbering or dashes. "
+        "Do NOT use any markdown formatting (no **, no *, no #). "
+        "Return ONLY plain text bullet points, one per line, "
+        "with no extra commentary. Keep the EXACT same number of bullets."
     )
     user_prompt = (
         f"TARGET JOB DESCRIPTION:\n{jd_text}\n\n"
         f"CURRENT ROLE: {title} at {company}\n\n"
-        f"ORIGINAL BULLETS (rewrite these):\n"
+        f"ORIGINAL BULLETS ({len(original_bullets)} total - return EXACTLY {len(original_bullets)} lines):\n"
         + "\n".join(f"- {b}" for b in original_bullets)
-        + "\n\nRewrite each bullet to better align with the target JD. "
-        "Keep the same number of bullets. Return one bullet per line, no dashes or numbers."
+        + f"\n\nRewrite each bullet to better align with the target JD. "
+        f"Return EXACTLY {len(original_bullets)} lines of plain text, no dashes or numbers."
     )
 
     result = call_github_model(token, system_prompt, user_prompt)
     lines = [ln.strip().lstrip("-•0123456789. ") for ln in result.strip().split("\n") if ln.strip()]
+    lines = [re.sub(r'\*\*([^*]+)\*\*', r'\1', ln) for ln in lines]
 
     if len(lines) != len(original_bullets):
         if len(lines) > len(original_bullets):
@@ -229,42 +205,145 @@ def tailor_bullets(token: str, jd_text: str, company: str, title: str,
     return lines
 
 
-def tailor_skills(token: str, jd_text: str, original_skills_text: str) -> str:
+def tailor_skills_entries(token: str, jd_text: str,
+                          entries: list[dict]) -> list[dict]:
+    """
+    Ask the LLM to reorder skills within each category, and reorder
+    the categories themselves. Returns list of {category, skills} dicts.
+    """
     system_prompt = (
-        "You are an expert resume writer. You reorder and lightly adjust the skills "
-        "section of a resume to better match a target job description. "
-        "Do NOT invent skills the candidate doesn't have. You may reorder, "
-        "emphasize, or slightly rephrase existing skills. Keep the exact same "
-        "category structure and formatting pattern. Return the full skills text."
+        "You are an expert resume writer. You reorder skills within each category "
+        "of a resume to better match a target job description. "
+        "Do NOT invent skills the candidate doesn't have. "
+        "You may reorder skills WITHIN each category to put the most relevant ones first. "
+        "You may reorder the CATEGORIES themselves to put the most relevant first. "
+        "Keep the EXACT same category names and the EXACT same number of categories. "
+        "Do NOT use any markdown formatting (no **, no *, no #, no backticks). "
+        "Return ONLY plain text, one category per line, in the format: "
+        "CategoryName: skill1, skill2, skill3, ..."
     )
+
+    cat_lines = []
+    for e in entries:
+        cat_lines.append(f"{e['category']} {e['skills']}")
+
     user_prompt = (
         f"TARGET JOB DESCRIPTION:\n{jd_text}\n\n"
-        f"ORIGINAL SKILLS SECTION:\n{original_skills_text}\n\n"
-        "Reorder and adjust to better match the JD. Keep the same categories and format."
+        f"ORIGINAL SKILLS ({len(entries)} categories - return EXACTLY {len(entries)} lines):\n"
+        + "\n".join(cat_lines)
+        + f"\n\nReorder skills within each category and reorder the categories. "
+        f"Return EXACTLY {len(entries)} lines. "
+        f"Format: CategoryName: skill1, skill2, ..."
     )
-    return call_github_model(token, system_prompt, user_prompt)
+
+    result = call_github_model(token, system_prompt, user_prompt)
+    new_lines = [ln.strip() for ln in result.strip().split("\n") if ln.strip()]
+    new_lines = [re.sub(r'\*\*([^*]+)\*\*', r'\1', ln) for ln in new_lines]
+    new_lines = [ln.strip('`') for ln in new_lines]
+
+    new_entries = []
+    for ln in new_lines:
+        if ":" in ln:
+            colon_idx = ln.index(":")
+            cat = ln[:colon_idx + 1].strip()
+            skills = ln[colon_idx + 1:].strip()
+            new_entries.append({"category": cat, "skills": skills})
+
+    if len(new_entries) != len(entries):
+        print(f"  WARNING: LLM returned {len(new_entries)} categories, expected {len(entries)}. Using original.")
+        return entries
+
+    return new_entries
 
 
-def replace_paragraph_text_preserve_format(para, new_text: str):
+def replace_bullet_text(para, new_text: str):
     """
-    Replace the text content of a paragraph while preserving
-    all run-level formatting (bold, italic, font, size, color).
+    Replace bullet text while preserving the multi-run structure.
+    Distributes new text across runs in the same word-per-run pattern
+    as the original to maintain identical rendering.
     """
     if not para.runs:
-        if para.text != new_text:
-            para.text = new_text
+        para.text = new_text
         return
 
     if len(para.runs) == 1:
         para.runs[0].text = new_text
         return
 
-    # For multi-run paragraphs: put all text in the first run,
-    # clear the rest — preserving the first run's formatting
-    first_run = para.runs[0]
-    first_run.text = new_text
-    for run in para.runs[1:]:
+    original_runs = para.runs
+    new_words = new_text.split(" ")
+
+    # The original pattern alternates: word, " ", word, " ", ... lastwords
+    # We rebuild: put one word per pair of runs (word-run + space-run),
+    # with remaining text in the last "word" run.
+    word_run_indices = []
+    space_run_indices = []
+    for ri, run in enumerate(original_runs):
+        if run.text.strip():
+            word_run_indices.append(ri)
+        elif run.text == " ":
+            space_run_indices.append(ri)
+
+    if not word_run_indices:
+        original_runs[0].text = new_text
+        for run in original_runs[1:]:
+            run.text = ""
+        return
+
+    # Distribute words across word-runs, put overflow in the last word-run
+    for ri, run in enumerate(original_runs):
         run.text = ""
+
+    if len(new_words) <= len(word_run_indices):
+        for wi, word in enumerate(new_words):
+            original_runs[word_run_indices[wi]].text = word
+        for si in range(len(new_words) - 1):
+            if si < len(space_run_indices):
+                original_runs[space_run_indices[si]].text = " "
+    else:
+        for wi in range(len(word_run_indices) - 1):
+            original_runs[word_run_indices[wi]].text = new_words[wi]
+        overflow = " ".join(new_words[len(word_run_indices) - 1:])
+        original_runs[word_run_indices[-1]].text = overflow
+        for si in range(len(word_run_indices) - 1):
+            if si < len(space_run_indices):
+                original_runs[space_run_indices[si]].text = " "
+
+
+def replace_skills_text(para, new_category: str, new_skills: str):
+    """
+    Replace skills paragraph text while preserving the bold category name
+    and normal-weight skills list pattern.
+    """
+    if not para.runs:
+        para.text = f"{new_category} {new_skills}"
+        return
+
+    # Find where the colon is in the original runs to identify
+    # bold (category) runs vs normal (skills) runs
+    bold_runs = []
+    normal_runs = []
+    found_colon = False
+
+    for ri, run in enumerate(para.runs):
+        if not found_colon:
+            bold_runs.append(ri)
+            if ":" in run.text:
+                found_colon = True
+        else:
+            normal_runs.append(ri)
+
+    # Put new category text in bold runs, new skills in normal runs
+    # Clear all runs first
+    for run in para.runs:
+        run.text = ""
+
+    if bold_runs:
+        para.runs[bold_runs[0]].text = new_category + " "
+    if normal_runs:
+        para.runs[normal_runs[0]].text = new_skills
+    elif bold_runs and len(bold_runs) > 1:
+        para.runs[bold_runs[-1]].text = " " + new_skills
 
 
 def update_resume(doc: Document, token: str, jd_text: str) -> Document:
@@ -286,34 +365,26 @@ def update_resume(doc: Document, token: str, jd_text: str) -> Document:
         new_bullets = tailor_bullets(token, jd_text, company, title, original_bullets)
 
         for idx, new_text in zip(bullet_indices, new_bullets):
-            replace_paragraph_text_preserve_format(doc.paragraphs[idx], new_text)
+            replace_bullet_text(doc.paragraphs[idx], new_text)
             print(f"  [OK] Updated bullet {idx}")
 
     # Tailor skills section
-    skills_block = build_skills_block(doc)
-    if skills_block["para_indices"]:
-        skill_paras = skills_block["para_indices"]
-        original_skills_lines = []
-        for idx in skill_paras:
-            t = doc.paragraphs[idx].text.strip()
-            if t:
-                original_skills_lines.append(t)
+    skill_entries = build_skills_entries(doc)
+    if skill_entries:
+        print(f"\nTailoring skills section ({len(skill_entries)} categories)...")
+        for e in skill_entries:
+            print(f"  Original: {e['category']} {e['skills'][:60]}...")
 
-        skills_text = "\n".join(original_skills_lines)
-        print(f"\nTailoring skills section ({len(skill_paras)} paragraphs)...")
-        new_skills = tailor_skills(token, jd_text, skills_text)
+        new_entries = tailor_skills_entries(token, jd_text, skill_entries)
 
-        new_skill_lines = [ln.strip() for ln in new_skills.strip().split("\n") if ln.strip()]
-
-        body_para_indices = [
-            idx for idx in skill_paras
-            if doc.paragraphs[idx].style.name in ("Body Text", "Normal")
-            and doc.paragraphs[idx].text.strip()
-        ]
-
-        for idx, new_line in zip(body_para_indices, new_skill_lines):
-            replace_paragraph_text_preserve_format(doc.paragraphs[idx], new_line)
-            print(f"  [OK] Updated skill para {idx}")
+        for orig_entry, new_entry in zip(skill_entries, new_entries):
+            idx = orig_entry["para_idx"]
+            replace_skills_text(
+                doc.paragraphs[idx],
+                new_entry["category"],
+                new_entry["skills"]
+            )
+            print(f"  [OK] Updated skill para {idx}: {new_entry['category']}")
 
     return doc
 
