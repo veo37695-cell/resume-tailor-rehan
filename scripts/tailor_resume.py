@@ -53,56 +53,85 @@ def read_jd(jd_path: str) -> str:
 
 def build_experience_blocks(doc: Document) -> list[dict]:
     """
-    Parse the resume into experience blocks: each block has a company header
-    and a list of bullet-point paragraph indices (only non-empty bullets).
+    Parse the resume into experience blocks. Each block has:
+    - date_company_idx: paragraph index for the date/company header
+    - title_idx: paragraph index for the job title (Heading 1)
+    - bullet_indices: list of paragraph indices for bullet points
+    - company_text: raw text of the date/company paragraph
+    - title_text: raw text of the title paragraph
     """
     blocks = []
     current_block = None
     in_experience = False
+    state = "looking_for_company"
+
+    date_pattern = re.compile(
+        r'(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|Present|\d{4}\s*-'
+    )
 
     for i, para in enumerate(doc.paragraphs):
-        text = para.text.strip()
+        raw_text = para.text
+        text = raw_text.strip()
         style = para.style.name if para.style else ""
 
-        if style == "Heading 1" and text.lower() == "experience":
-            in_experience = True
-            continue
-
-        if style == "Heading 1" and ("education" in text.lower() or "certification" in text.lower()):
-            in_experience = False
-            if current_block:
-                blocks.append(current_block)
-                current_block = None
-            continue
-
         if not in_experience:
+            if text.lower().startswith("experience"):
+                in_experience = True
+                state = "looking_for_company"
             continue
 
-        is_date_company = (
-            style in ("Normal", "Body Text")
-            and "\t" in text
-            and not text.startswith("-")
-            and text  # non-empty
-        )
-        if is_date_company:
-            if current_block:
-                blocks.append(current_block)
-            current_block = {
-                "date_company_idx": i,
-                "title_idx": None,
-                "bullet_indices": [],
-                "company_text": text,
-            }
+        if (len(text) < 40
+                and ("education" in text.lower() or "skills" in text.lower()
+                     or "certification" in text.lower())):
+            is_header = (style == "Heading 1"
+                         or all(r.bold for r in para.runs if r.text.strip()))
+            if is_header:
+                if current_block:
+                    blocks.append(current_block)
+                    current_block = None
+                in_experience = False
+                continue
+
+        if not text:
             continue
 
-        if style == "Heading 1" and current_block and current_block["title_idx"] is None:
-            current_block["title_idx"] = i
-            current_block["title_text"] = text
-            continue
+        has_date = bool(date_pattern.search(raw_text))
+        has_tab = "\t" in raw_text
+        tab_count = raw_text.count("\t")
 
-        if style == "List Paragraph" and current_block and text:
-            current_block["bullet_indices"].append(i)
-            continue
+        if state in ("looking_for_company", "reading_bullets"):
+            if has_date and has_tab:
+                if current_block:
+                    blocks.append(current_block)
+                current_block = {
+                    "date_company_idx": i,
+                    "title_idx": None,
+                    "bullet_indices": [],
+                    "company_text": text,
+                    "title_text": "",
+                }
+                state = "looking_for_title"
+                continue
+
+        if state == "looking_for_title":
+            non_tab_text = raw_text.replace("\t", "").strip()
+
+            if style == "Heading 1" or style.startswith("Heading"):
+                if tab_count >= 3 and len(non_tab_text) < 20:
+                    continue
+                if len(non_tab_text) > 3:
+                    current_block["title_idx"] = i
+                    current_block["title_text"] = text
+                    state = "reading_bullets"
+                    continue
+
+            if tab_count >= 2 and len(non_tab_text) < 15:
+                continue
+
+        if state == "reading_bullets":
+            if current_block and current_block["title_idx"] is not None:
+                if not (has_date and has_tab):
+                    current_block["bullet_indices"].append(i)
 
     if current_block:
         blocks.append(current_block)
@@ -123,7 +152,8 @@ def build_skills_entries(doc: Document) -> list[dict]:
         text = para.text.strip()
         style = para.style.name if para.style else ""
 
-        if style == "Heading 1" and "certification" in text.lower():
+        if style == "Heading 1" and ("certification" in text.lower()
+                                      or "skills" in text.lower()):
             in_skills = True
             continue
 
@@ -269,41 +299,29 @@ def tailor_titles(token: str, jd_text: str,
 
 def replace_title_text(para, new_title: str):
     """
-    Replace only the title portion (after the tab) in a title paragraph,
-    keeping the location text and tab character intact.
-    The paragraph format is: "Location\\tTitle"
+    Replace the title text in a title paragraph while preserving
+    any leading formatting runs (tabs, spaces).
+    Handles both formats:
+      - With leading tabs: "\\t  \\tSenior AI Lead "
+      - Plain title: "Cloud Solution Architect "
     """
     if not para.runs:
         return
 
-    # Find the tab character in the runs
-    tab_run_idx = None
-    for ri, run in enumerate(para.runs):
-        if "\t" in run.text:
-            tab_run_idx = ri
+    # Find the last run with substantial text (that's the title)
+    title_run_idx = None
+    for ri in range(len(para.runs) - 1, -1, -1):
+        txt = para.runs[ri].text.replace("\t", "").strip()
+        if len(txt) > 2:
+            title_run_idx = ri
             break
 
-    if tab_run_idx is None:
+    if title_run_idx is None:
         return
 
-    # The tab run may contain title text too (e.g. "\tSenior")
-    # Keep only up to and including the tab
-    tab_run = para.runs[tab_run_idx]
-    tab_pos = tab_run.text.index("\t")
-    tab_run.text = tab_run.text[:tab_pos + 1]
-
-    # Clear all runs after the tab run
-    title_run_indices = list(range(tab_run_idx + 1, len(para.runs)))
-    for ri in title_run_indices:
-        para.runs[ri].text = ""
-
-    if not title_run_indices:
-        tab_run.text += new_title
-        cleanup_empty_runs(para)
-        return
-
-    # Place full title in the first run after the tab
-    para.runs[title_run_indices[0]].text = new_title
+    orig = para.runs[title_run_idx].text
+    trailing = " " if orig.endswith(" ") else ""
+    para.runs[title_run_idx].text = new_title + trailing
     cleanup_empty_runs(para)
 
 
@@ -416,67 +434,77 @@ def replace_bullet_text(para, new_text: str):
 
 def replace_skills_text(para, new_category: str, new_skills: str):
     """
-    Replace skills paragraph text while preserving the bold category name
-    and normal-weight skills list pattern.
-
-    Uses the actual bold property of each run to determine where to place
-    category text (in bold runs) vs skills text (in non-bold runs).
+    Replace skills paragraph text while preserving the bold category name,
+    normal-weight skills list, and all surrounding formatting runs
+    (leading space/tab, trailing space/newline).
+    Only modifies the category run and skills run; leaves other runs intact.
     """
     if not para.runs:
         para.text = f"{new_category} {new_skills}"
         return
 
-    # Classify runs by actual bold formatting
-    first_bold_idx = None
-    first_nonbold_idx = None
+    cat_run_idx = None
+    skills_run_idx = None
+
     for ri, run in enumerate(para.runs):
-        if run.bold and first_bold_idx is None:
-            first_bold_idx = ri
-        if not run.bold and first_nonbold_idx is None:
-            first_nonbold_idx = ri
+        if cat_run_idx is None and ":" in run.text:
+            cat_run_idx = ri
+        elif cat_run_idx is not None and skills_run_idx is None:
+            if run.text.strip() and not run.bold:
+                skills_run_idx = ri
 
-    # Clear all run text
-    for run in para.runs:
-        run.text = ""
-
-    if first_bold_idx is not None and first_nonbold_idx is not None:
-        para.runs[first_bold_idx].text = new_category + " "
-        para.runs[first_nonbold_idx].text = new_skills
-    elif first_bold_idx is not None:
-        # All runs are bold - put category in first, skills after a space
-        # but ensure skills aren't displayed as bold by removing bold from last run
-        para.runs[first_bold_idx].text = new_category + " "
-        last_idx = len(para.runs) - 1
-        if last_idx > first_bold_idx:
-            para.runs[last_idx].text = new_skills
-            para.runs[last_idx].bold = False
-        else:
-            para.runs[first_bold_idx].text = new_category + " " + new_skills
+    if cat_run_idx is not None and skills_run_idx is not None:
+        para.runs[cat_run_idx].text = new_category + " "
+        para.runs[skills_run_idx].text = new_skills
+    elif cat_run_idx is not None:
+        para.runs[cat_run_idx].text = new_category + " " + new_skills
     else:
-        para.runs[0].text = new_category + " " + new_skills
+        first_bold = next((ri for ri, r in enumerate(para.runs) if r.bold), None)
+        first_nonbold = next(
+            (ri for ri, r in enumerate(para.runs)
+             if not r.bold and r.text.strip()), None
+        )
+        for run in para.runs:
+            run.text = ""
+        if first_bold is not None and first_nonbold is not None:
+            para.runs[first_bold].text = new_category + " "
+            para.runs[first_nonbold].text = new_skills
+        else:
+            para.runs[0].text = new_category + " " + new_skills
 
     cleanup_empty_runs(para)
+
+
+def extract_company_name(doc: Document, block: dict) -> str:
+    """Extract a clean company name from a date/company paragraph."""
+    para = doc.paragraphs[block["date_company_idx"]]
+
+    parts = [r.text.strip() for r in para.runs if r.bold and r.text.strip()]
+    if parts:
+        return " ".join(parts)
+
+    caps = [r.text.strip() for r in para.runs
+            if r.text.strip() and r.text.strip().isupper()
+            and len(r.text.strip()) > 2
+            and not any(c.isdigit() for c in r.text.strip())]
+    if caps:
+        return " ".join(caps)
+
+    text = block["company_text"]
+    if "\t" in text:
+        return text.split("\t")[-1].strip() or text.strip()
+    return text.strip()
 
 
 def update_resume(doc: Document, token: str, jd_text: str) -> Document:
     exp_blocks = build_experience_blocks(doc)
     print(f"Found {len(exp_blocks)} experience blocks")
 
-    # Tailor position titles
     title_info = []
     for block in exp_blocks:
         if block.get("title_idx") is not None and block.get("title_text"):
-            title_text = block["title_text"]
-            # Extract just the title part (after tab if present)
-            if "\t" in title_text:
-                title_only = title_text.split("\t", 1)[1].strip()
-            else:
-                title_only = title_text.strip()
-            company = block["company_text"]
-            if "\t" in company:
-                company_name = company.split("\t", 1)[1].strip()
-            else:
-                company_name = company.strip()
+            title_only = block["title_text"].replace("\t", "").strip()
+            company_name = extract_company_name(doc, block)
             title_info.append({
                 "title_idx": block["title_idx"],
                 "title": title_only,
@@ -497,8 +525,8 @@ def update_resume(doc: Document, token: str, jd_text: str) -> Document:
 
     # Tailor experience bullets
     for block in exp_blocks:
-        company = block["company_text"]
-        title = block.get("title_text", "")
+        company = extract_company_name(doc, block)
+        title = block.get("title_text", "").replace("\t", "").strip()
         bullet_indices = block["bullet_indices"]
 
         if not bullet_indices:
