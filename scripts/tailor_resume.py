@@ -266,7 +266,7 @@ def replace_title_text(para, new_title: str):
     if not para.runs:
         return
 
-    # Find the tab character position in the runs
+    # Find the tab character in the runs
     tab_run_idx = None
     for ri, run in enumerate(para.runs):
         if "\t" in run.text:
@@ -276,54 +276,23 @@ def replace_title_text(para, new_title: str):
     if tab_run_idx is None:
         return
 
-    # The tab run may also contain title text (e.g. "\tSenior")
-    # Trim it to just the location + tab portion
+    # The tab run may contain title text too (e.g. "\tSenior")
+    # Keep only up to and including the tab
     tab_run = para.runs[tab_run_idx]
     tab_pos = tab_run.text.index("\t")
     tab_run.text = tab_run.text[:tab_pos + 1]
 
-    # Everything after the tab run is the title
+    # Clear all runs after the tab run
     title_run_indices = list(range(tab_run_idx + 1, len(para.runs)))
-    if not title_run_indices:
-        # No runs after tab - append title to the tab run itself
-        tab_run.text = tab_run.text + new_title
-        return
-
-    new_words = new_title.split(" ")
-
-    # Classify title runs into word-runs and space-runs
-    word_run_indices = []
-    space_run_indices = []
-    for ri in title_run_indices:
-        if para.runs[ri].text.strip():
-            word_run_indices.append(ri)
-        elif para.runs[ri].text == " ":
-            space_run_indices.append(ri)
-
-    # Clear all title runs
     for ri in title_run_indices:
         para.runs[ri].text = ""
 
-    if not word_run_indices:
-        if title_run_indices:
-            para.runs[title_run_indices[0]].text = new_title
+    if not title_run_indices:
+        tab_run.text += new_title
         return
 
-    # Distribute words across word runs, overflow into last
-    if len(new_words) <= len(word_run_indices):
-        for wi, word in enumerate(new_words):
-            para.runs[word_run_indices[wi]].text = word
-        for si in range(len(new_words) - 1):
-            if si < len(space_run_indices):
-                para.runs[space_run_indices[si]].text = " "
-    else:
-        for wi in range(len(word_run_indices) - 1):
-            para.runs[word_run_indices[wi]].text = new_words[wi]
-        overflow = " ".join(new_words[len(word_run_indices) - 1:])
-        para.runs[word_run_indices[-1]].text = overflow
-        for si in range(len(word_run_indices) - 1):
-            if si < len(space_run_indices):
-                para.runs[space_run_indices[si]].text = " "
+    # Place full title in the first run after the tab
+    para.runs[title_run_indices[0]].text = new_title
 
 
 def tailor_skills_entries(token: str, jd_text: str,
