@@ -214,6 +214,114 @@ def tailor_bullets(token: str, jd_text: str, company: str, title: str,
     return lines
 
 
+def tailor_titles(token: str, jd_text: str,
+                  titles: list[dict]) -> list[str]:
+    """
+    Ask the LLM to adjust position titles to better align with the JD.
+    Returns a list of new title strings in the same order.
+    """
+    system_prompt = (
+        "You are an expert resume writer. You adjust job position titles "
+        "on a resume to better align with a target job description. "
+        "The titles must remain professional, realistic, and close to the original. "
+        "Do NOT make drastic changes - only adjust wording to better match the JD. "
+        "For example: 'Senior AI Lead' -> 'Senior Data & AI Lead' for a data role. "
+        "Or: 'AI Product Engineer' -> 'Data & AI Product Engineer'. "
+        "Keep seniority levels (Senior, Junior, Lead) the same. "
+        "Do NOT use any markdown formatting. "
+        "Return ONLY the new titles, one per line, in the same order."
+    )
+
+    title_lines = []
+    for t in titles:
+        title_lines.append(f"- {t['title']} (at {t['company']})")
+
+    user_prompt = (
+        f"TARGET JOB DESCRIPTION:\n{jd_text}\n\n"
+        f"CURRENT POSITION TITLES ({len(titles)} titles - return EXACTLY {len(titles)} lines):\n"
+        + "\n".join(title_lines)
+        + f"\n\nAdjust each title to better match the target JD. "
+        f"Return EXACTLY {len(titles)} plain text titles, one per line, no dashes or numbers."
+    )
+
+    result = call_github_model(token, system_prompt, user_prompt)
+    lines = [ln.strip().lstrip("-•0123456789. ") for ln in result.strip().split("\n") if ln.strip()]
+    lines = [re.sub(r'\*\*([^*]+)\*\*', r'\1', ln) for ln in lines]
+
+    if len(lines) != len(titles):
+        if len(lines) > len(titles):
+            lines = lines[:len(titles)]
+        else:
+            lines.extend([t["title"] for t in titles[len(lines):]])
+
+    return lines
+
+
+def replace_title_text(para, new_title: str):
+    """
+    Replace only the title portion (after the tab) in a title paragraph,
+    keeping the location text and tab character intact.
+    The paragraph format is: "Location\\tTitle"
+    """
+    if not para.runs:
+        return
+
+    # Find the tab character position in the runs
+    tab_run_idx = None
+    for ri, run in enumerate(para.runs):
+        if "\t" in run.text:
+            tab_run_idx = ri
+            break
+
+    if tab_run_idx is None:
+        return
+
+    # Everything after the tab run is the title - distribute new title words
+    title_run_indices = list(range(tab_run_idx + 1, len(para.runs)))
+    if not title_run_indices:
+        # Tab and title are in the same run
+        tab_run = para.runs[tab_run_idx]
+        tab_pos = tab_run.text.index("\t")
+        tab_run.text = tab_run.text[:tab_pos + 1] + new_title
+        return
+
+    new_words = new_title.split(" ")
+
+    # Classify title runs into word-runs and space-runs
+    word_run_indices = []
+    space_run_indices = []
+    for ri in title_run_indices:
+        if para.runs[ri].text.strip():
+            word_run_indices.append(ri)
+        elif para.runs[ri].text == " ":
+            space_run_indices.append(ri)
+
+    # Clear title runs
+    for ri in title_run_indices:
+        para.runs[ri].text = ""
+
+    if not word_run_indices:
+        if title_run_indices:
+            para.runs[title_run_indices[0]].text = new_title
+        return
+
+    # Distribute words
+    if len(new_words) <= len(word_run_indices):
+        for wi, word in enumerate(new_words):
+            para.runs[word_run_indices[wi]].text = word
+        for si in range(len(new_words) - 1):
+            if si < len(space_run_indices):
+                para.runs[space_run_indices[si]].text = " "
+    else:
+        for wi in range(len(word_run_indices) - 1):
+            para.runs[word_run_indices[wi]].text = new_words[wi]
+        overflow = " ".join(new_words[len(word_run_indices) - 1:])
+        para.runs[word_run_indices[-1]].text = overflow
+        for si in range(len(word_run_indices) - 1):
+            if si < len(space_run_indices):
+                para.runs[space_run_indices[si]].text = " "
+
+
 def tailor_skills_entries(token: str, jd_text: str,
                           entries: list[dict]) -> list[dict]:
     """
@@ -365,6 +473,40 @@ def update_resume(doc: Document, token: str, jd_text: str) -> Document:
     exp_blocks = build_experience_blocks(doc)
     print(f"Found {len(exp_blocks)} experience blocks")
 
+    # Tailor position titles
+    title_info = []
+    for block in exp_blocks:
+        if block.get("title_idx") is not None and block.get("title_text"):
+            title_text = block["title_text"]
+            # Extract just the title part (after tab if present)
+            if "\t" in title_text:
+                title_only = title_text.split("\t", 1)[1].strip()
+            else:
+                title_only = title_text.strip()
+            company = block["company_text"]
+            if "\t" in company:
+                company_name = company.split("\t", 1)[1].strip()
+            else:
+                company_name = company.strip()
+            title_info.append({
+                "title_idx": block["title_idx"],
+                "title": title_only,
+                "company": company_name,
+            })
+
+    if title_info:
+        print(f"\nTailoring {len(title_info)} position titles...")
+        for t in title_info:
+            print(f"  Original: {t['title']} at {t['company']}")
+
+        new_titles = tailor_titles(token, jd_text, title_info)
+
+        for info, new_title in zip(title_info, new_titles):
+            idx = info["title_idx"]
+            print(f"  [OK] {info['title']} -> {new_title}")
+            replace_title_text(doc.paragraphs[idx], new_title)
+
+    # Tailor experience bullets
     for block in exp_blocks:
         company = block["company_text"]
         title = block.get("title_text", "")
