@@ -1,0 +1,85 @@
+Hi! Nice to meet you.
+
+Yes, I have this vacancy for you:
+
+ABOUT THE ROLE 
+We are looking for Senior AI Engineers to join this engagement and help build, scale, and govern AI-powered products on the Google Cloud Platform ecosystem. You will work at the intersection of Data Science, Generative AI, and Cloud Engineering — leveraging the full Google AI tech stack to deliver measurable business outcomes for one of the world's most recognized enterprise brands. 
+CORE TECHNOLOGY SKILLS 
+Google Cloud Platform 
+
+Vertex AI 
+
+Gemini Pro / Ultra 
+
+BigQuery 
+
+Dataflow / Pub/Sub 
+
+Cloud Run / GKE 
+
+LangChain / LlamaIndex 
+
+RAG Pipelines 
+
+Python 
+
+TensorFlow / JAX 
+
+Looker / Data Studio 
+
+MLflow / Kubeflow 
+
+Google Workspace APIs 
+
+Vector Search (Vertex) 
+
+Data Science 
+
+GenAI APIs 
+
+ 
+KEY RESPONSIBILITIES 
+1. Generative AI & LLM Development 
+• Design, build, and deploy generative AI applications using Google Gemini (Pro, Ultra, Flash), PaLM 2, and other Google-hosted foundation models via Vertex AI. 
+• Implement Retrieval-Augmented Generation (RAG) architectures using Vertex AI Search, Vector Search, and document embedding pipelines for enterprise knowledge retrieval. 
+• Develop multi-modal AI capabilities leveraging Gemini's vision, text, and code understanding for hospitality use cases such as guest experience, analytics, and operations. 
+• Build and maintain agentic AI workflows and orchestration using LangChain, LlamaIndex, or Google Agent Builder — integrating tools, APIs, and enterprise data sources. 
+• Optimize prompt engineering strategies, system instructions, and grounding mechanisms for production-grade LLM deployments. 
+2. Data Science & ML Engineering 
+• Develop end-to-end ML pipelines from data ingestion and feature engineering through model training, evaluation, and production deployment on Vertex AI Pipelines / Kubeflow. 
+• Apply advanced data science techniques — statistical modelling, time-series forecasting, recommendation systems, and anomaly detection — for hospitality and gaming analytics. 
+• Build scalable data transformation and feature engineering workflows using BigQuery, Dataflow, and Pub/Sub. 
+• Implement model monitoring, drift detection, and automated retraining strategies to ensure sustained model performance in production. 
+• Leverage TensorFlow, JAX, or PyTorch for custom model development where pre-trained solutions are insufficient. 
+3. GCP Platform & Cloud Architecture 
+• Architect and manage cloud-native AI infrastructure on GCP — including Vertex AI, BigQuery ML, Cloud Run, GKE, Cloud Functions, and Cloud Storage. 
+• Design secure, scalable, and cost-optimized GCP environments aligned with enterprise compliance requirements and CLIENT's data governance standards. 
+• Implement CI/CD pipelines for ML model serving using Cloud Build, Artifact Registry, and Vertex AI Model Registry. 
+• Set up monitoring, observability, and alerting for AI/ML workloads using Cloud Monitoring, Cloud Logging, and custom dashboards in Looker. 
+• Build agents with Google ADK, deploy with Cloud Run / Agent Engine with Vertex. 
+• Design and implement conversational AI agents using Dialogflow CX and Agent Builder for guest-facing and internal automation use cases. 
+4. Collaboration, Governance & Mentorship 
+• Partner with CLIENT's business and technology stakeholders to define AI use cases, prioritize the roadmap, and translate requirements into technical deliverables. 
+• Champion responsible AI practices — model fairness, explainability, content safety, and data privacy — across all AI solution designs. 
+• Produce and maintain technical documentation including architecture decision records (ADRs), API specs, model cards, and runbooks. 
+• Mentor junior engineers and lead knowledge-sharing sessions; contribute to AI community of practice within the delivery organization. 
+AS A SENIOR AI ENINEER, you will:
+• Lead end-to-end design and delivery of AI modules — from architecture to production deployment — for complex, multi-component features. 
+• Define LLM integration patterns, RAG strategies, and data pipeline architectures; own technical quality and performance of these systems. 
+• Act as the primary technical interface with cross-functional stakeholders at CLIENT; participate in requirements workshops and solution demos. 
+• Drive design reviews, establish engineering standards, and actively mentor L2 engineers on the team. 
+• Identify and address technical debt, reliability risks, and scalability bottlenecks proactively. 
+• Build agents with Google ADK, deploy with Cloud Run / Agent Engine with Vertex. 
+QUALIFICATIONS & EDUCATION 
+• Bachelor's or Master's degree in Computer Science, Engineering, Data Science, Artificial Intelligence, or a related technical field. 
+• 6–10 years of experience with 5+ years in AI/ML engineering; prior experience leading technical workstreams in enterprise settings. 
+• Strong proficiency in Python; working knowledge of SQL; familiarity with infrastructure-as-code tools (Terraform, Cloud Deployment Manager) preferred. 
+• Google Cloud Professional certifications (Cloud Architect, ML Engineer, Data Engineer) are a strong differentiator at all levels. 
+• Excellent written and verbal communication skills; ability to present technical concepts to non-technical executive audiences. 
+GOOD-TO-HAVE SKILLS 
+• Experience with hospitality, gaming, or retail domains — understanding CLIENT's operational context is a significant advantage. 
+• Familiarity with additional Vector DB platforms such as Pinecone, Weaviate, pgvector, or Chroma alongside Vertex AI Vector Search. 
+• Knowledge of RPA tools or workflow automation platforms (UiPath, Power Automate) that complement AI pipelines. 
+• Exposure to responsible AI toolkits, model interpretability frameworks (SHAP, LIME), and AI governance practices. 
+• Experience with real-time inference architectures, streaming ML, and event-driven AI using Pub/Sub and Eventarc. 
+ 
