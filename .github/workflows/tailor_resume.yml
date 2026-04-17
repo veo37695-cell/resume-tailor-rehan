@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: write
+  models: read
 
 jobs:
   tailor:
@@ -51,7 +52,7 @@ jobs:
 
       - name: Tailor resume
         env:
-          GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
+          GH_MODELS_TOKEN: ${{ github.token }}
         run: |
           echo "Processing JD: ${{ steps.detect_jd.outputs.jd_file }}"
           python scripts/tailor_resume.py \

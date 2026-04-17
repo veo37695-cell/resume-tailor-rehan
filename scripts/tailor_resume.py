@@ -188,7 +188,9 @@ def call_github_model(token: str, system_prompt: str, user_prompt: str) -> str:
         "max_tokens": 4000,
     }
     resp = requests.post(GITHUB_MODELS_URL, headers=headers, json=payload, timeout=120)
-    resp.raise_for_status()
+    if resp.status_code != 200:
+        print(f"API Error {resp.status_code}: {resp.text[:500]}")
+        resp.raise_for_status()
     return resp.json()["choices"][0]["message"]["content"]
 
 
