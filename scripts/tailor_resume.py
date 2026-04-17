@@ -24,6 +24,16 @@ GITHUB_MODELS_URL = "https://models.inference.ai.azure.com/chat/completions"
 MODEL_NAME = "gpt-4o"
 
 
+def cleanup_empty_runs(para):
+    """Remove empty run elements from the paragraph XML to avoid artifacts."""
+    runs_to_remove = []
+    for run in para.runs:
+        if run.text == "":
+            runs_to_remove.append(run._element)
+    for r_elem in runs_to_remove:
+        r_elem.getparent().remove(r_elem)
+
+
 def read_jd(jd_path: str) -> str:
     ext = Path(jd_path).suffix.lower()
     if ext == ".docx":
@@ -289,10 +299,12 @@ def replace_title_text(para, new_title: str):
 
     if not title_run_indices:
         tab_run.text += new_title
+        cleanup_empty_runs(para)
         return
 
     # Place full title in the first run after the tab
     para.runs[title_run_indices[0]].text = new_title
+    cleanup_empty_runs(para)
 
 
 def tailor_skills_entries(token: str, jd_text: str,
@@ -399,6 +411,8 @@ def replace_bullet_text(para, new_text: str):
             if si < len(space_run_indices):
                 original_runs[space_run_indices[si]].text = " "
 
+    cleanup_empty_runs(para)
+
 
 def replace_skills_text(para, new_category: str, new_skills: str):
     """
@@ -440,6 +454,8 @@ def replace_skills_text(para, new_category: str, new_skills: str):
             para.runs[first_bold_idx].text = new_category + " " + new_skills
     else:
         para.runs[0].text = new_category + " " + new_skills
+
+    cleanup_empty_runs(para)
 
 
 def update_resume(doc: Document, token: str, jd_text: str) -> Document:
@@ -521,6 +537,7 @@ def update_resume(doc: Document, token: str, jd_text: str) -> Document:
             for cont_idx in orig_entry.get("continuation_indices", []):
                 for run in doc.paragraphs[cont_idx].runs:
                     run.text = ""
+                cleanup_empty_runs(doc.paragraphs[cont_idx])
                 print(f"  [OK] Cleared continuation para {cont_idx}")
 
     return doc
