@@ -103,8 +103,8 @@ def build_experience_blocks(doc: Document) -> list[dict]:
 def build_skills_entries(doc: Document) -> list[dict]:
     """
     Extract skill category entries from the skills section.
-    Each entry maps a paragraph index to its category label and skills text,
-    tracking which runs are bold (category) vs normal (skills).
+    Each entry maps a paragraph index to its category label and skills text.
+    Continuation lines (no colon, not a heading) are appended to the previous entry.
     """
     in_skills = False
     entries = []
@@ -121,6 +121,10 @@ def build_skills_entries(doc: Document) -> list[dict]:
             continue
 
         if not text:
+            continue
+
+        # Skip heading/label-only paragraphs like "skills"
+        if style == "Normal" and ":" not in text and len(text) < 20:
             continue
 
         bold_part = ""
@@ -142,10 +146,15 @@ def build_skills_entries(doc: Document) -> list[dict]:
         if bold_part.strip() and normal_part.strip():
             entries.append({
                 "para_idx": i,
+                "continuation_indices": [],
                 "category": bold_part.strip(),
                 "skills": normal_part.strip(),
                 "full_text": text,
             })
+        elif entries and not found_colon and text:
+            # Continuation line - append skills to previous entry
+            entries[-1]["skills"] += " " + text
+            entries[-1]["continuation_indices"].append(i)
 
     return entries
 
@@ -314,36 +323,42 @@ def replace_skills_text(para, new_category: str, new_skills: str):
     """
     Replace skills paragraph text while preserving the bold category name
     and normal-weight skills list pattern.
+
+    Uses the actual bold property of each run to determine where to place
+    category text (in bold runs) vs skills text (in non-bold runs).
     """
     if not para.runs:
         para.text = f"{new_category} {new_skills}"
         return
 
-    # Find where the colon is in the original runs to identify
-    # bold (category) runs vs normal (skills) runs
-    bold_runs = []
-    normal_runs = []
-    found_colon = False
-
+    # Classify runs by actual bold formatting
+    first_bold_idx = None
+    first_nonbold_idx = None
     for ri, run in enumerate(para.runs):
-        if not found_colon:
-            bold_runs.append(ri)
-            if ":" in run.text:
-                found_colon = True
-        else:
-            normal_runs.append(ri)
+        if run.bold and first_bold_idx is None:
+            first_bold_idx = ri
+        if not run.bold and first_nonbold_idx is None:
+            first_nonbold_idx = ri
 
-    # Put new category text in bold runs, new skills in normal runs
-    # Clear all runs first
+    # Clear all run text
     for run in para.runs:
         run.text = ""
 
-    if bold_runs:
-        para.runs[bold_runs[0]].text = new_category + " "
-    if normal_runs:
-        para.runs[normal_runs[0]].text = new_skills
-    elif bold_runs and len(bold_runs) > 1:
-        para.runs[bold_runs[-1]].text = " " + new_skills
+    if first_bold_idx is not None and first_nonbold_idx is not None:
+        para.runs[first_bold_idx].text = new_category + " "
+        para.runs[first_nonbold_idx].text = new_skills
+    elif first_bold_idx is not None:
+        # All runs are bold - put category in first, skills after a space
+        # but ensure skills aren't displayed as bold by removing bold from last run
+        para.runs[first_bold_idx].text = new_category + " "
+        last_idx = len(para.runs) - 1
+        if last_idx > first_bold_idx:
+            para.runs[last_idx].text = new_skills
+            para.runs[last_idx].bold = False
+        else:
+            para.runs[first_bold_idx].text = new_category + " " + new_skills
+    else:
+        para.runs[0].text = new_category + " " + new_skills
 
 
 def update_resume(doc: Document, token: str, jd_text: str) -> Document:
@@ -385,6 +400,13 @@ def update_resume(doc: Document, token: str, jd_text: str) -> Document:
                 new_entry["skills"]
             )
             print(f"  [OK] Updated skill para {idx}: {new_entry['category']}")
+
+            # Clear any continuation paragraphs (their content is now
+            # merged into the main category line by the LLM)
+            for cont_idx in orig_entry.get("continuation_indices", []):
+                for run in doc.paragraphs[cont_idx].runs:
+                    run.text = ""
+                print(f"  [OK] Cleared continuation para {cont_idx}")
 
     return doc
 
