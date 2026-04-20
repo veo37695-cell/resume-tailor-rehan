@@ -1,0 +1,17 @@
+🌐 Remote Role – Power Platform / Copilot Studio Governance Specialist  
+
+An IT Consulting company is seeking a *remote resource* to support a project operating in the *US time zone*. The ideal candidate will have a strong command of governance and ALM practices, with proven experience delivering similar projects an excellent English communication.
+
+ 🔑 Required Skills
+- *Power Platform Governance*  
+  - DLP policy configuration and management  
+  - Environment strategy and ALM (solution management, deployment pipelines)  
+- *Copilot Studio Governance*  
+  - Publishing gates and connector policies  
+- *Delivery Flexibility*  
+  - Ability to support agent builds during peak delivery weeks  
+- *CoE Starter Kit* familiarity is a plus  
+
+📌 Role Context
+- Flex role — primary focus on governance and ALM foundation work  
+- Ability to support Copilot Studio agent builds during peak weeks
