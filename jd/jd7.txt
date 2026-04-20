@@ -1,0 +1,26 @@
+Remote Part-time Opportunity – Python ML / Backend Engineer (Distributed Systems, Kubernetes)
+
+🕒 Role Details:
+⏳ Weekly Commitment: 10 hours
+🌐 Mode: Part-time (Remote)
+💰 Competitive Salary
+
+We’re hiring experienced Python ML / Backend Engineers with strong expertise in microservices, distributed systems, and ML deployment for a remote part-time role. If you have 5+ years of experience building scalable ML-powered systems and production-grade architectures, this is your opportunity to work flexibly and earn extra income while contributing to high-impact, data-driven platforms!
+
+🔧 Tech Skills Required:
+✅ Python (backend & ML development)
+✅ Microservices & Distributed Systems
+✅ ML Deployment & Productionization
+✅ MLflow & Feature Store
+✅ ONNX (model optimization & serving)
+✅ Chalk.ai (real-time ML systems)
+✅ Search Ranking & Pricing Systems
+✅ Observability (monitoring, logging, tracing)
+✅ Kubernetes (container orchestration)
+✅ Terraform (Infrastructure as Code)
+
+✨ Benefits:
+✔️ Work from anywhere
+✔️ Flexible hours
+✔️ Work on real-time ML systems & intelligent platforms
+✔️ Gain hands-on experience with scalable distributed architectures
