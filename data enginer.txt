@@ -1,0 +1,61 @@
+About the job
+We’re building a workforce and workflow intelligence platform that helps teams understand and improve how work gets done. We’re a U.S.-based tech company with a high bar for talent, ownership, and execution — and we’re intentional about building a strong, globally distributed team from the start.
+
+
+We need a Data Scientist to help design and build the algorithms that power insights, pre-label data, and reduce the need for manual configuration by users. This role sits at the intersection of machine learning, product, and data, turning complex data into clear, actionable value for our customers.
+
+
+What you’ll do
+
+Design and build algorithms that power our core intelligence and analytics capabilities.
+Develop models to pre-label, classify, and structure data, reducing the need for manual setup by users.
+Collaborate with machine learning engineers to productionize models and integrate them into scalable systems.
+Partner with product and engineering to translate business problems into data-driven solutions.
+Build and iterate on models that generate insights, predictions, and recommendations.
+Help define and improve data structures that support modeling, analysis, and automation.
+Work on improving the SOP driven experience by reducing manual steps and increasing automation.
+Analyze complex datasets to identify patterns, trends, and opportunities for product value.
+Continuously evaluate model performance and iterate to improve accuracy, reliability, and impact.
+Ensure solutions are efficient, scalable, and aligned with real-world workflows and user needs.
+
+
+Who you are
+
+Experienced in applied data science, machine learning, or advanced analytics in a product-driven environment.
+Strong foundation in statistics, modeling, and experimental design.
+Hands-on with Python and common data science libraries.
+Comfortable building and evaluating models that move into production.
+Strong SQL skills and ability to work with large, complex datasets.
+Able to translate ambiguous problems into structured, data-driven solutions.
+Focused on building systems that reduce manual work and deliver clear value to users.
+Collaborative and comfortable working across engineering, product, and leadership teams.
+
+
+Bonus points
+
+Experience with pre-labeling, weak supervision, or automated data labeling techniques.
+Familiarity with recommendation systems, classification, or predictive modeling.
+Experience working with ML engineers to productionize models.
+Understanding of workflow automation, process optimization, or operations analytics.
+Exposure to real-time data or event-driven systems.
+
+
+Why join
+
+You’ll help build the intelligence layer of our product, creating the algorithms that power automation, reduce manual setup, and unlock meaningful insights for our customers. 
+
+
+
+You’ll work directly with founders and engineers across product, data, and machine learning to shape how intelligence is delivered at scale. This is a high-impact role focused on turning data into real, measurable value.
+
+
+Ideal for builders who care about applying machine learning to solve real-world problems and creating systems that make users more effective.
+
+
+Compensation:
+
+We offer competitive pay based on the market and where you’re located. The salary ranges in our job postings are intentionally wide because they need to cover both U.S. and international candidates. Our final offer will depend on things like your experience, skill set, and location.
+
+show less
+Requirements added by the job poster
+6+ years of work experience with Python (Programming Language)
