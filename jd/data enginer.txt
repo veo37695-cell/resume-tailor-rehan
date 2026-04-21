@@ -10,7 +10,69 @@ Open Jobs
 
 View More Jobs
 Principal Data Engineer
-London, United Kingdom and 1 more (Hybrid)
+London, United Kingdom and 1 more  Apply for the Senior AI Engineer
+We are seeking a Senior AI Engineer to join a fast-paced, high-impact team focused on building production-grade AI systems. This role is ideal for a high-velocity engineer who can ramp quickly, ship meaningful features. You will work across backend, frontend, and infrastructure, leveraging modern AI technologies such as LLMs, RAG pipelines, and NLP systems to deliver scalable solutions. The ideal candidate is a strong full-stack engineer with solid Python experience, cloud infrastructure knowledge, and the ability to turn ambiguous ideas into production-ready features.
+
+Key Responsibilities
+
+Rapidly ramp into the codebase and ship your first production feature within the first week
+
+Design, build, and deploy production-grade AI-powered applications and systems
+
+Work across backend, frontend, and infrastructure to deliver end-to-end solutions
+
+Develop scalable cloud-based architectures and services
+
+Implement and optimize LLMs, RAG pipelines, NLP systems, and AI orchestration workflows
+
+Translate ambiguous product requirements into technical solutions and deliver production-ready features
+
+Build reliable systems with proper validation, testing, monitoring, and performance optimization
+
+Collaborate with technical and non-technical stakeholders to deliver impactful features
+
+Use AI tools effectively to accelerate development while maintaining high-quality standards
+
+Operate autonomously in a high-speed, high-ownership environment
+
+Core Requirements
+
+Strong Python backend development experience
+
+Full-stack capability, including frontend development experience
+
+Experience with cloud infrastructure and scalable system design (AWS, GCP, or Azure)
+
+Hands-on experience with LLMs, RAG pipelines, NLP systems, and AI orchestration
+Experience building production-grade AI/ML systems
+
+Ability to build quickly using AI tools without sacrificing quality
+
+Strong product judgment and ability to turn ambiguous ideas into production-ready features
+
+Experience building reliable systems with validation, testing, and monitoring
+
+4+ years of related experience, preferably in an AI/ML production environment
+
+Ability to collaborate with both technical and non-technical stakeholders
+
+Comfortable operating in a high-speed, high-ownership environment
+
+Excellent written and verbal communication skills in English
+
+Ability to work independently in a remote, fast-paced environment
+
+Nice-to-Have
+
+Experience working in startup or high-growth environments
+
+Experience shipping AI features at scale
+
+Familiarity with modern AI development tools and frameworks
+
+Experience building AI-driven products from early-stage concepts
+
+Experience working in small, high-impact engineering teams
 Job Description
 Principal Data Engineer 
 
