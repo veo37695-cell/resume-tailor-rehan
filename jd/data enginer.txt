@@ -1,0 +1,122 @@
+
+Skip to main content.
+Meerkat Careers
+Our Teams
+Talent Academy
+Life at CtM
+Our Stories
+Open Jobs
+
+
+View More Jobs
+Principal Data Engineer
+London, United Kingdom and 1 more (Hybrid)
+Job Description
+Principal Data Engineer 
+
+Function: Data / Technology
+
+Location: London / Peterborough
+
+ 
+
+Curious about what’s next?
+
+So are we. Join Compare the Market and help to make financial decision making a breeze for millions.
+
+At Compare the Market, we’re a purpose-driven business powered by tech and AI. We’re building high-performing, results-driven teams with the skills, mindset, and ambition to deliver outcomes at pace. Every role here plays a part in driving our mission forward, and we create an environment where you can bring your authentic self, grow a truly characterful career, and see the direct impact of your work on the lives of our customers.
+
+We’ve carved a meerkat-shaped niche and we’re looking for ambitious, curious thinkers who thrive in a fast-moving, high-impact environment. If you love accountability, embrace challenge, and want to make a real difference, you’ll fit right in.
+
+ 
+
+What you’ll be doing:
+
+- Own the Data Platform architecture and strategy, defining the long-term target state and setting clear standards and guardrails to ensure scalability, resilience, and cost efficiency.
+
+- Set the engineering bar by establishing best practices across data ingestion, streaming, transformation, modelling, CI/CD, orchestration, testing, observability, and governance.
+
+- Act as the senior technical authority across data engineering, influencing architecture decisions and leading the Data Engineering Community of Practice to raise capability across the organisation.
+
+- Champion “data as a product”, ensuring datasets and platform services are reliable, discoverable, reusable, and governed with clear ownership and service expectations.
+
+- Drive strategic technical direction while remaining hands-on where it matters—reviewing designs, validating patterns, and guiding complex problem-solving without becoming a delivery bottleneck.
+
+ 
+
+What we’re looking for:
+
+- Extensive experience in Data Engineering within modern, cloud-based data platforms.
+
+- Deep expertise in streaming-first architectures, with strong knowledge of batch processing approaches.
+
+- Strong experience across AWS data ecosystems, Databricks, dbt, CI/CD practices, and orchestration frameworks. 
+
+- Proven track record of defining and implementing large-scale platform architecture and engineering standards.
+
+- Strong understanding of data modelling, ingestion patterns, performance optimisation, observability, governance, and security.
+
+- Experience influencing senior engineers and stakeholders across multiple teams without formal authority.
+
+- Experience leading engineering communities of practice and raising technical standards at organisational scale.
+
+- Ability to operate independently in complex, high-impact environments.
+
+ 
+
+Why Compare the Market?
+
+We’re a business built for pace and performance. Here, you’ll be encouraged to think differently, act boldly, and deliver brilliantly in a culture that values results and rewards progress.
+
+ 
+
+We believe diverse teams make better decisions, and we’re committed to creating an inclusive workplace where everyone feels empowered to grow, contribute, and thrive.
+
+ 
+
+If you’re ready to stretch yourself, raise the bar, and grow with a team that’s serious about performance, innovation, and purpose, we’d love to hear from you
+
+ 
+
+Apply Now
+Job Info
+Job Identification
+100201
+Job Category
+Technology
+Posting Date
+17/04/2026, 17:35
+Job Schedule
+Full time
+Locations
+ White Collar Factory, London, London, EC1Y 8AF, GB
+ Pegasus House, Peterborough, Cambridgeshire, PE2 6YS, GB
+(Hybrid)
+Similar Jobs
+Engineering Manager (Data Engineering)
+London, United Kingdom and 1 more (Hybrid)  Posted on 10/03/2026  
+Trending
+
+
+Meerkat Careers
+Find out more
+Our Teams
+Talent Academy
+Life at CtM
+Our Stories
+Useful information
+Contact Us
+About Us
+Our Partners
+Legal
+Modern Slavery
+Privacy Policy
+Use of Cookies
+Terms & Conditions
+LinkedIn
+Instagram
+TikTok
+© 2025
+
+Page Principal Data Engineer - Candidate Experience site Careers loaded
+
