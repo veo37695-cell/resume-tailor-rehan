@@ -1,38 +1,54 @@
-Job Description:
 Staff ML Engineer – (GenAI, ML)
+
 Remote
+
 Fulltime Direct Hire
+
 Extreme Networks
+
+ 
 
 About Extreme:
 Are you energized by innovating with Generative AI? Do you want to create global impact while tackling challenges at the forefront of Artificial Intelligence? At Extreme, we are defining the future of AI-driven network management and shaping next-generation networking experiences through cutting-edge Generative AI, Machine Learning, Big Data, and Cloud Computing.
+
 As a recognized Technology Leader in the Gartner Magic Quadrant and a multi-year Best Employer award winner, Extreme is growing rapidly worldwide. We foster a culture of diversity, inclusion, and equality, where every employee thrives because of their differences—not despite them.
+
+ 
 
 Our AI Core group is pioneering platforms and solutions for Generative AI, including AI Agents, Retrieval-Augmented Generation (RAG), Knowledge Bases, Data Mining, Anomaly Detection, and LLM fine-tuning. Together, we are building intelligent, high-performance multi-agent systems that perceive, learn, and act in real time, driving a fundamental shift in network intelligence.
 
+ 
+
 What You’ll Do:
-• Serve as a thought leader driving innovation across products and platforms.
-• Design, develop, and launch strategic ML solutions that deliver business-wide impact.
-• Lead the full software development lifecycle: design, coding, testing, deployment, and operations.
-• Participate in design and code reviews, technical discussions, and strategic planning.
-• Develop high-performance, production-ready ML code for real-time platforms and extend existing ML libraries and frameworks.
-• Collaborate closely with engineers and scientists to accelerate model development, validation, experimentation, and production integration at scale.
+
+Serve as a thought leader driving innovation across products and platforms.
+Design, develop, and launch strategic ML solutions that deliver business-wide impact.
+Lead the full software development lifecycle: design, coding, testing, deployment, and operations.
+Participate in design and code reviews, technical discussions, and strategic planning.
+Develop high-performance, production-ready ML code for real-time platforms and extend existing ML libraries and frameworks.
+Collaborate closely with engineers and scientists to accelerate model development, validation, experimentation, and production integration at scale.
+ 
 
 What We’re Looking For:
-• Degree in Computer Science, Mathematics, or a related field.
-• 8+ years of full software development lifecycle (SDLC) experience.
-• 5+ years of hands-on experience building and deploying ML solutions or platforms in production.
-• Hands-on experience developing Generative AI solutions (RAG, AI Agents, LLM fine-tuning) in production.
-• Experience with large-scale distributed systems on cloud platforms (AWS, Azure, GCP).
-• Strong problem-solving skills and ability to tackle complex, ambiguous challenges.
+
+Degree in Computer Science, Mathematics, or a related field.
+8+ years of full software development lifecycle (SDLC) experience.
+5+ years of hands-on experience building and deploying ML solutions or platforms in production.
+Hands-on experience developing Generative AI solutions (RAG, AI Agents, LLM fine-tuning) in production.
+Experience with large-scale distributed systems on cloud platforms (AWS, Azure, GCP).
+Strong problem-solving skills and ability to tackle complex, ambiguous challenges.
+ 
 
 Preferred Qualifications:
-• MS/PhD in Computer Science, Machine Learning, or a related discipline.
-• Experience with Graph ML and Graph technologies (e.g., GNNs, GraphRAG).
-• Experience with distributed Big Data technologies (e.g., Spark, Flink, Kafka, PySpark, Lakehouse, Druid, Hudi, Glue).
+
+MS/PhD in Computer Science, Machine Learning, or a related discipline.
+Experience with Graph ML and Graph technologies (e.g., GNNs, GraphRAG).
+Experience with distributed Big Data technologies (e.g., Spark, Flink, Kafka, PySpark, Lakehouse, Druid, Hudi, Glue).
+ 
 
 Why Join Extreme:
-• Work at the cutting edge of Generative AI and Machine Learning.
-• Influence product vision and technical strategy from concept to delivery.
-• Collaborate with global experts on high-impact projects.
-• Thrive in a culture that values diversity, inclusion, and innovation.
+
+Work at the cutting edge of Generative AI and Machine Learning.
+Influence product vision and technical strategy from concept to delivery.
+Collaborate with global experts on high-impact projects.
+Thrive in a culture that values diversity, inclusion, and innovation.
