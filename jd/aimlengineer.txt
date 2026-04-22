@@ -1,0 +1,4 @@
+AI/ML Engineer with experience in:
+Implement ML techniques including supervised, unsupervised, deep learning, and NLP. 
+* Build and deploy solutions using Python, integrating LLMs, RAG, and agentic AI workflows. 
+* Deploy models on Azure, GCP, and AWS with robust CI/CD practices and containerization. 
