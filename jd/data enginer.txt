@@ -1,4 +1,33 @@
-AI/ML Engineer with experience in:
-Implement ML techniques including supervised, unsupervised, deep learning, and NLP. 
-* Build and deploy solutions using Python, integrating LLMs, RAG, and agentic AI workflows. 
-* Deploy models on Azure, GCP, and AWS with robust CI/CD practices and containerization. 
+🚀 We’re hiring: Data Engineer
+ 📍 Vilnius, Lithuania | 🌍 Open to international candidates (relocation + Blue Card visa support)
+ We’re looking for a talented and motivated Data Engineer with 7+ years of experience to join a dynamic team working on modern data solutions across multiple industries.
+ 
+ 💼 What you’ll do:
+ • Design, build, and maintain scalable data pipelines
+ • Work with large volumes of data from multiple sources
+ • Collaborate with data scientists, analysts, and stakeholders
+ • Optimize data workflows for performance and reliability
+ • Ensure data quality through validation, testing, and monitoring
+ 
+ ✅ What we’re looking for:
+ • 7+ years of experience in data engineering (building data pipelines, e.g. Spark, Kafka or similar)
+ • Strong SQL skills and experience with databases
+ • Proficiency in Python, Scala, or Java
+ • Experience with cloud platforms (AWS, Azure, or GCP)
+ • Degree in Computer Science, Engineering, or a related field
+ 
+ ➕ Nice to have:
+ • Experience with data modeling and database design
+ • Knowledge of DataOps, CI/CD, and automated testing
+ • Experience with big data tools (Hadoop, Hive, HBase)
+ • Familiarity with Docker, Kubernetes
+ 
+ 🎁 What we offer:
+ • Flexible vacation, health & travel insurance, relocation support
+ • Blue Card visa support
+ • Hybrid work model with flexible hours
+ • Work on international projects across industries
+ • Learning & development support, certifications
+ • Career growth opportunities
+ • Open and inclusive culture
+ 
